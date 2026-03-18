@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [description, setDescription] = useState("");
   const [assignee, setAssignee] = useState("");
   const [deadline, setDeadline] = useState("");
+  const [category, setCategory] = useState("Design");
 
   const fetchData = async () => {
     const token = localStorage.getItem("token");
@@ -66,7 +67,7 @@ export default function Dashboard() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}` 
         },
-        body: JSON.stringify({ title, description, assignee, deadline })
+        body: JSON.stringify({ title, description, assignee, deadline, category })
       });
       const data = await res.json();
       if (data.success) {
@@ -75,6 +76,7 @@ export default function Dashboard() {
         setDescription("");
         setAssignee("");
         setDeadline("");
+        setCategory("Design");
         fetchData(); // Refresh tasks
       } else {
         alert("Failed to create task");
@@ -101,16 +103,15 @@ export default function Dashboard() {
             {/* SEARCH BAR REMOVED AS REQUESTED */}
           </div>
           <div className="flex items-center gap-4">
-            <button className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
+            <button className="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
+              <span className="material-symbols-outlined text-xl">notifications</span>
             </button>
-            <div 
-              className="size-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors"
+            <button 
+              className="px-4 py-2 text-sm font-bold text-slate-700 dark:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-full transition-colors"
               onClick={handleLogout}
-              title="Sign Out"
             >
-              <span className="text-primary font-bold">{user?.name ? user.name.substring(0,2).toUpperCase() : "JD"}</span>
-            </div>
+              Sign Out
+            </button>
           </div>
         </header>
 
@@ -249,11 +250,10 @@ export default function Dashboard() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Assign to</label>
                   <div className="relative group">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary">alternate_email</span>
                     <input 
                       value={assignee}
                       onChange={(e) => setAssignee(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-slate-100" 
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-slate-100" 
                       placeholder="colleague@company.com" 
                       type="email" 
                     />
@@ -262,11 +262,10 @@ export default function Dashboard() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Deadline</label>
                   <div className="relative group">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary">calendar_today</span>
                     <input 
                       value={deadline}
                       onChange={(e) => setDeadline(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-slate-100" 
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-slate-100" 
                       type="date" 
                     />
                   </div>
@@ -299,19 +298,23 @@ export default function Dashboard() {
                 ></textarea>
               </div>
 
-              {/* Tags (Multi-select) */}
+              {/* Category */}
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tags</label>
-                <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                  <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
-                    Urgent <button className="material-symbols-outlined text-sm leading-none">close</button>
-                  </span>
-                  <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-300 dark:border-slate-600">
-                    Marketing <button className="material-symbols-outlined text-sm leading-none">close</button>
-                  </span>
-                  <button className="flex items-center gap-1 px-3 py-1 rounded-full border border-dashed border-slate-400 text-slate-500 text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                    <span className="material-symbols-outlined text-sm">add</span> Add Tag
-                  </button>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Category</label>
+                <div className="relative">
+                  <select 
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-slate-100 appearance-none"
+                  >
+                    <option value="Design">Design</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Product">Product</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Strategy">Strategy</option>
+                    <option value="General">General</option>
+                  </select>
+                  <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
                 </div>
               </div>
 

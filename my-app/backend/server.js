@@ -72,7 +72,7 @@ app.post("/dashboard/task", async (req, res) => {
 
   try {
     const decoded = await admin.auth().verifyIdToken(token);
-    const { title, description, assignee, deadline } = req.body;
+    const { title, description, assignee, deadline, category } = req.body;
     
     // Convert deadline to a readable format if provided
     let dateStr = "No Date";
@@ -86,7 +86,7 @@ app.post("/dashboard/task", async (req, res) => {
       description: description || "No description provided.",
       status: "IN PROGRESS",
       priority: "Normal",
-      category: "General",
+      category: category || "General",
       dueDate: dateStr,
       assignee: assignee || "Unassigned"
     };
