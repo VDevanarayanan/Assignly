@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Assignly",
+        "supportEmail": "vdtelevision69@gmail.com"
+      }
+    }
+  }
+}
