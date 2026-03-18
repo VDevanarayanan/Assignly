@@ -1,7 +1,7 @@
 import React from "react";
 import "./Auth.css";
 
-const Login = ({ setPage }) => {
+const Signup = ({ setPage }) => {
   return (
     <div className="auth-container">
         <div className="app-logo">
@@ -11,8 +11,8 @@ const Login = ({ setPage }) => {
       <div className="auth-card">
 
         <div className="auth-header">
-          <h2>Welcome Back</h2>
-          <p>Login to continue</p>
+          <h2>Create Account</h2>
+          <p>Sign up to get started</p>
         </div>
 
         <div className="auth-body">
@@ -24,14 +24,15 @@ const Login = ({ setPage }) => {
 
           <div className="divider">OR</div>
 
+          <input type="text" placeholder="Name" />
           <input type="email" placeholder="Email" />
           <input type="password" placeholder="Password" />
 
-          <button className="btn">Login</button>
+          <button className="btn">Sign Up</button>
 
           <div className="switch-text">
-            Don't have an account?{" "}
-            <span onClick={() => setPage("signup")}>Sign up</span>
+            Already have an account?{" "}
+            <span onClick={() => setPage("login")}>Login</span>
           </div>
 
         </div>
@@ -40,4 +41,4 @@ const Login = ({ setPage }) => {
   );
 };
 
-export default Login;
+export default Signup;
