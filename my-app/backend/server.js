@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -31,36 +33,43 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-let globalTasks = [
-  { 
-    title: "Q4 Brand Guidelines Review", 
-    description: "Review the final version of the brand guidelines and provide feedback to the design team before EOD.", 
-    status: "ACCEPTED", priority: "Urgent", category: "Design", dueDate: "Oct 24, 2023" 
-  },
-  { 
-    title: "Mobile App Sprint Planning", 
-    description: "Outline the main objectives for the upcoming two-week mobile development sprint.", 
-    status: "IN PROGRESS", priority: "Normal", category: "Product", dueDate: "Oct 26, 2023" 
-  },
-  { 
-    title: "Investor Presentation Prep", 
-    description: "Consolidate quarterly data into the new slide deck template for the board meeting.", 
-    status: "ACCEPTED", priority: "High", category: "Strategy", dueDate: "Oct 30, 2023" 
+// Database Persistence
+const tasksFilePath = path.join(__dirname, 'tasks.json');
+let globalTasks = [];
+
+if (fs.existsSync(tasksFilePath)) {
+  try {
+    const data = fs.readFileSync(tasksFilePath, 'utf8');
+    globalTasks = JSON.parse(data);
+  } catch (err) {
+    console.error("Error reading tasks database:", err);
   }
-];
+}
+
+const saveTasks = () => {
+  try {
+    fs.writeFileSync(tasksFilePath, JSON.stringify(globalTasks, null, 2));
+  } catch (err) {
+    console.error("Error saving tasks recursively:", err);
+  }
+};
 
 app.get("/dashboard", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   try {
     const decoded = await admin.auth().verifyIdToken(token);
+    const userEmail = decoded.email;
 
     const user = {
       name: decoded.name || decoded.email.split("@")[0],
       email: decoded.email,
     };
 
-    res.json({ success: true, user, tasks: globalTasks });
+    // Only show tasks assigned to this user
+    const userTasks = globalTasks.filter(t => t.assignee === userEmail);
+
+    res.json({ success: true, user, tasks: userTasks });
   } catch (err) {
     console.error("Dashboard error:", err);
     res.status(401).json({ success: false });
@@ -72,30 +81,97 @@ app.post("/dashboard/task", async (req, res) => {
 
   try {
     const decoded = await admin.auth().verifyIdToken(token);
+    const userEmail = decoded.email;
     const { title, description, assignee, deadline, category } = req.body;
     
-    // Convert deadline to a readable format if provided
+    // Auto-assign to self if empty
+    const finalAssignee = assignee && assignee.trim() !== "" ? assignee : userEmail;
+
+    // Convert deadline and check urgency
     let dateStr = "No Date";
+    let priority = "Normal";
+
     if (deadline) {
       const d = new Date(deadline);
+      const now = new Date();
+      // Calculate diff in days
+      const diffTime = d.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays >= 0 && diffDays <= 5) {
+        priority = "Urgent";
+      }
+
       dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
     const newTask = {
+      id: Date.now().toString(),
       title: title || "New Task",
       description: description || "No description provided.",
-      status: "IN PROGRESS",
-      priority: "Normal",
+      status: "ACCEPTED",
+      priority: priority, // fallback
       category: category || "General",
       dueDate: dateStr,
-      assignee: assignee || "Unassigned"
+      rawDeadline: deadline || null,
+      assignee: finalAssignee
     };
 
     globalTasks.push(newTask);
-
+    saveTasks(); // Persist to database
     res.json({ success: true, task: newTask });
   } catch (err) {
     console.error("Task creation error:", err);
+    res.status(401).json({ success: false });
+  }
+});
+
+app.put("/dashboard/task/:id", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    const taskId = req.params.id;
+    const { status } = req.body;
+    
+    // Allow updating tasks regardless of user for simplicity in this demo,
+    // but in a real app, verify `decoded.email === task.assignee`.
+    const taskIndex = globalTasks.findIndex(t => t.id === taskId);
+    if (taskIndex > -1) {
+      globalTasks[taskIndex].status = status;
+      saveTasks(); // Persist to database
+      res.json({ success: true, task: globalTasks[taskIndex] });
+    } else {
+      res.status(404).json({ success: false, message: "Task not found" });
+    }
+  } catch (err) {
+    console.error("Task update error:", err);
+    res.status(401).json({ success: false });
+  }
+});
+
+app.delete("/dashboard/task/:id", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    const userEmail = decoded.email;
+    const taskId = req.params.id;
+
+    const taskIndex = globalTasks.findIndex(t => t.id === taskId);
+    if (taskIndex > -1) {
+      const task = globalTasks[taskIndex];
+      // Only allow deletion if assigned to user AND marked as completed
+      if (task.assignee === userEmail && task.status === "COMPLETED") {
+        globalTasks.splice(taskIndex, 1);
+        saveTasks(); // Persist to database
+        res.json({ success: true, message: "Task deleted" });
+      } else {
+        res.status(403).json({ success: false, message: "Unauthorized or not completed" });
+      }
+    } else {
+      res.status(404).json({ success: false, message: "Task not found" });
+    }
+  } catch (err) {
+    console.error("Task deletion error:", err);
     res.status(401).json({ success: false });
   }
 });
