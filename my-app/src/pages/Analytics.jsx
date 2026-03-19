@@ -50,12 +50,12 @@ export default function Analytics() {
 
   const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
   const colors = [
-    { bg: "bg-primary", border: "border-primary" },
-    { bg: "bg-emerald-500", border: "border-emerald-500" },
-    { bg: "bg-amber-500", border: "border-amber-500" },
-    { bg: "bg-violet-500", border: "border-violet-500" },
-    { bg: "bg-rose-500", border: "border-rose-500" },
-    { bg: "bg-blue-500", border: "border-blue-500" }
+    { bg: "bg-primary", stroke: "stroke-primary" },
+    { bg: "bg-emerald-500", stroke: "stroke-emerald-500" },
+    { bg: "bg-amber-500", stroke: "stroke-amber-500" },
+    { bg: "bg-violet-500", stroke: "stroke-violet-500" },
+    { bg: "bg-rose-500", stroke: "stroke-rose-500" },
+    { bg: "bg-blue-500", stroke: "stroke-blue-500" }
   ];
 
   const topCategories = sortedCategories.map(([name, count], index) => ({
@@ -74,6 +74,53 @@ export default function Analytics() {
     cumulativePercent += cat.percentage;
     return { ...cat, dashArray, dashOffset };
   });
+
+  // --- COMPLETED TASKS OVER TIME LOGIC ---
+  const [timeRange, setTimeRange] = useState(7); // default 7 days
+
+  const getLocalDateString = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const generateChartData = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Create accurate temporal bins
+    const bins = [];
+    const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+    
+    for (let i = timeRange - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      bins.push({
+        dateStr: getLocalDateString(d),
+        label: timeRange === 7 ? days[d.getDay()] : d.getDate(),
+        count: 0
+      });
+    }
+
+    // Process all completed tasks exactly into their bins
+    tasks.forEach(t => {
+      if (t.status === "COMPLETED") {
+        // If it lacks completion sync metadata, powerfully infer the origin time via ID (Date.now()) integer.
+        const originTimestamp = t.completedAt ? new Date(t.completedAt) : new Date(parseInt(t.id));
+        const compDateStr = getLocalDateString(originTimestamp);
+        
+        const bin = bins.find(b => b.dateStr === compDateStr);
+        if (bin) bin.count++;
+      }
+    });
+
+    const maxCount = Math.max(...bins.map(b => b.count), 1); // Avoid division explosion
+    return { bins, maxCount };
+  };
+
+  const { bins: chartBins, maxCount: chartMax } = generateChartData();
+  // ----------------------------------------
 
   return (
     <div className="flex bg-background-light dark:bg-background-dark font-sans relative overflow-x-hidden min-h-screen">
@@ -181,28 +228,45 @@ export default function Analytics() {
 
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Line Chart Placeholder (Static layout matching the mockup exactly) */}
-            <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            {/* Line Chart Fully Programmatic CSS Injector */}
+            <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-slate-900 dark:text-white font-bold">Tasks Completed Over Time</h3>
-                <select className="bg-slate-100 dark:bg-slate-800 border-none text-xs rounded-lg px-2 py-1 focus:ring-primary outline-none text-slate-800 dark:text-slate-200 cursor-pointer text-center">
-                  <option>Last 7 Days</option>
-                  <option>Last 30 Days</option>
+                <select 
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(Number(e.target.value))}
+                  className="bg-slate-100 dark:bg-slate-800 border-none text-xs rounded-lg px-2 py-1 focus:ring-primary outline-none text-slate-800 dark:text-slate-200 cursor-pointer text-center"
+                >
+                  <option value={7}>Last 7 Days</option>
+                  <option value={30}>Last 30 Days</option>
                 </select>
               </div>
-              <div className="w-full h-64 flex items-end justify-between gap-2 px-2">
-                <div className="w-full bg-primary/20 rounded-t-lg h-[40%] relative group cursor-pointer hover:bg-primary/40 transition-colors">
-                  <div className="hidden group-hover:block absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded">12</div>
-                </div>
-                <div className="w-full bg-primary/20 rounded-t-lg h-[60%] relative group cursor-pointer hover:bg-primary/40 transition-colors"></div>
-                <div className="w-full bg-primary/20 rounded-t-lg h-[45%] relative group cursor-pointer hover:bg-primary/40 transition-colors"></div>
-                <div className="w-full bg-primary/40 rounded-t-lg h-[85%] relative group cursor-pointer hover:bg-primary/60 transition-colors"></div>
-                <div className="w-full bg-primary/20 rounded-t-lg h-[30%] relative group cursor-pointer hover:bg-primary/40 transition-colors"></div>
-                <div className="w-full bg-primary/20 rounded-t-lg h-[70%] relative group cursor-pointer hover:bg-primary/40 transition-colors"></div>
-                <div className="w-full bg-primary rounded-t-lg h-[95%] relative group cursor-pointer transition-colors"></div>
+              
+              <div className="w-full grow min-h-[16rem] flex items-end justify-between gap-1 sm:gap-2 px-1 sm:px-2 pt-8">
+                {chartBins.map((bin, i) => {
+                  const heightPercent = Math.max((bin.count / chartMax) * 100, 4); // Establish strict visual floor
+                  const activeColor = bin.count > 0 ? "bg-primary hover:bg-primary/80" : "bg-primary/10 hover:bg-primary/30";
+                  
+                  return (
+                    <div 
+                      key={i} 
+                      className={`w-full ${activeColor} rounded-t-lg relative group transition-all duration-300 cursor-pointer`} 
+                      style={{ height: `${heightPercent}%` }}
+                    >
+                      <div className="hidden group-hover:block absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-700 text-white text-[10px] px-2 py-1 rounded z-10 shadow-lg whitespace-nowrap">
+                        {bin.count} {bin.count === 1 ? 'Task' : 'Tasks'}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex justify-between mt-4 text-[10px] text-slate-400 font-medium">
-                <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+              
+              <div className="flex justify-between mt-4 text-[10px] text-slate-400 font-bold tracking-wider">
+                {chartBins.map((bin, i) => (
+                  <span key={i} className="flex-1 text-center whitespace-nowrap">
+                    {timeRange === 30 ? (i % 5 === 0 ? bin.label : '') : bin.label}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -225,7 +289,7 @@ export default function Analytics() {
                         cx="16"
                         cy="16"
                         pathLength="100"
-                        className={`fill-transparent ${seg.color.border.replace('border-', 'stroke-')} transition-all duration-500`}
+                        className={`fill-transparent ${seg.color.stroke} transition-all duration-500`}
                         strokeWidth="8"
                         strokeDasharray={seg.dashArray}
                         strokeDashoffset={seg.dashOffset}
@@ -258,59 +322,6 @@ export default function Analytics() {
             </div>
           </div>
 
-          {/* Insights Section */}
-          <div className="bg-primary/5 dark:bg-primary/10 rounded-2xl p-8 border border-primary/20">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="material-symbols-outlined text-primary">lightbulb</span>
-              <h2 className="text-slate-900 dark:text-white text-xl font-bold">Smart Insights</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-slate-900 p-5 rounded-xl flex gap-4 items-start shadow-sm hover:shadow-md transition-shadow cursor-default">
-                <div className="p-3 bg-primary/10 rounded-lg text-primary shrink-0">
-                  <span className="material-symbols-outlined">schedule</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 dark:text-white mb-1">Morning Productivity Peak</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">You complete 65% of your high-priority tasks between 8 AM and 11 AM. Consider scheduling your most complex work during this block.</p>
-                </div>
-              </div>
-              
-              <div className="bg-white dark:bg-slate-900 p-5 rounded-xl flex gap-4 items-start shadow-sm hover:shadow-md transition-shadow cursor-default">
-                <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 shrink-0">
-                  <span className="material-symbols-outlined">trending_up</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 dark:text-white mb-1">Top Category: {topCategories[0]?.name || "N/A"}</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                    {topCategories[0] ? `Your "${topCategories[0].name}" category is booming. You've actively created ${topCategories[0].count} tasks representing ${topCategories[0].percentage}% of your workflow.` : "Create more tasks to see insights."}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="bg-white dark:bg-slate-900 p-5 rounded-xl flex gap-4 items-start shadow-sm hover:shadow-md transition-shadow cursor-default">
-                <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 shrink-0">
-                  <span className="material-symbols-outlined">warning</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 dark:text-white mb-1">Pipeline Growing</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">You currently hold {pendingTasks} unresolved tasks pending in your pipeline. It might be time to review your immediate deadlines.</p>
-                </div>
-              </div>
-              
-              <div className="bg-white dark:bg-slate-900 p-5 rounded-xl flex gap-4 items-start shadow-sm hover:shadow-md transition-shadow cursor-default">
-                <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-lg text-violet-600 shrink-0">
-                  <span className="material-symbols-outlined">auto_awesome</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 dark:text-white mb-1">Productivity Standing</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                    {productivityScore > 0 ? `You currently have a robust ${productivityScore}% productivity standing across ${totalTasks} lifetime tasks. Keep up the tremendous momentum!` : `Complete your first task to unlock your productivity scoring engine!`}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </main>
 
         <footer className="px-6 md:px-10 lg:px-40 py-6 border-t border-slate-200 dark:border-slate-800 text-center">

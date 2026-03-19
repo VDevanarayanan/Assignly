@@ -137,7 +137,15 @@ app.put("/dashboard/task/:id", async (req, res) => {
     // but in a real app, verify `decoded.email === task.assignee`.
     const taskIndex = globalTasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
+      const oldStatus = globalTasks[taskIndex].status;
       globalTasks[taskIndex].status = status;
+      
+      if (status === "COMPLETED" && oldStatus !== "COMPLETED") {
+        globalTasks[taskIndex].completedAt = new Date().toISOString();
+      } else if (status !== "COMPLETED") {
+        globalTasks[taskIndex].completedAt = null;
+      }
+
       saveTasks(); // Persist to database
       res.json({ success: true, task: globalTasks[taskIndex] });
     } else {

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "1773864391462",
+    "title": "Water plants",
+    "description": "No description provided.",
+    "status": "COMPLETED",
+    "priority": "Normal",
+    "category": "General",
+    "dueDate": "No Date",
+    "rawDeadline": null,
+    "assignee": "vdsidehustle69@gmail.com"
+  },
+  {
+    "id": "1773864407155",
+    "title": "Do backend",
+    "description": "No description provided.",
+    "status": "ACCEPTED",
+    "priority": "Urgent",
+    "category": "Engineering",
+    "dueDate": "Mar 21, 2026",
+    "rawDeadline": "2026-03-21",
+    "assignee": "vdsidehustle69@gmail.com"
+  }
+]
