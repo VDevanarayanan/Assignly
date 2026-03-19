@@ -15,13 +15,42 @@
     "id": "1773896058099",
     "title": "Brush teeth",
     "description": "No description provided.",
-    "status": "ACCEPTED",
+    "status": "COMPLETED",
     "priority": "Normal",
     "category": "Product",
     "dueDate": "No Date",
     "rawDeadline": null,
     "assignee": "vdcoder69@gmail.com",
     "creator": "vdsidehustle69@gmail.com",
+    "completedAt": "2026-03-19T05:04:07.589Z",
+    "updatedAt": "2026-03-19T05:04:07.589Z"
+  },
+  {
+    "id": "1773897374511",
+    "title": "Do frontend",
+    "description": "No description provided.",
+    "status": "IN PROGRESS",
+    "priority": "Urgent",
+    "category": "Product",
+    "dueDate": "Mar 22, 2026",
+    "rawDeadline": "2026-03-22",
+    "assignee": "vdtelevision69@gmail.com",
+    "creator": "vdsidehustle69@gmail.com",
+    "updatedAt": "2026-03-19T05:18:03.408Z",
+    "completedAt": null
+  },
+  {
+    "id": "1773897403516",
+    "title": "Eat food",
+    "description": "No description provided.",
+    "status": "REJECTED",
+    "priority": "Normal",
+    "category": "Engineering",
+    "dueDate": "No Date",
+    "rawDeadline": null,
+    "assignee": "vdcoder69@gmail.com",
+    "creator": "vdsidehustle69@gmail.com",
+    "updatedAt": "2026-03-19T05:17:33.765Z",
     "completedAt": null
   }
 ]

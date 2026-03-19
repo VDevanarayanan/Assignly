@@ -115,7 +115,8 @@ app.post("/dashboard/task", async (req, res) => {
       dueDate: dateStr,
       rawDeadline: deadline || null,
       assignee: finalAssignee,
-      creator: userEmail
+      creator: userEmail,
+      updatedAt: new Date().toISOString()
     };
 
     globalTasks.push(newTask);
@@ -138,13 +139,16 @@ app.put("/dashboard/task/:id", async (req, res) => {
     // but in a real app, verify `decoded.email === task.assignee`.
     const taskIndex = globalTasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
-      const oldStatus = globalTasks[taskIndex].status;
-      globalTasks[taskIndex].status = status;
+      const task = globalTasks[taskIndex];
       
-      if (status === "COMPLETED" && oldStatus !== "COMPLETED") {
-        globalTasks[taskIndex].completedAt = new Date().toISOString();
-      } else if (status !== "COMPLETED") {
-        globalTasks[taskIndex].completedAt = null;
+      if (status !== undefined) {
+        task.status = status;
+        task.updatedAt = new Date().toISOString();
+        if (status === 'COMPLETED') {
+          task.completedAt = new Date().toISOString();
+        } else {
+          task.completedAt = null;
+        }
       }
 
       saveTasks(); // Persist to database
