@@ -109,7 +109,7 @@ app.post("/dashboard/task", async (req, res) => {
       id: Date.now().toString(),
       title: title || "New Task",
       description: description || "No description provided.",
-      status: "ACCEPTED",
+      status: finalAssignee !== userEmail ? "PENDING" : "ACCEPTED",
       priority: priority, // fallback
       category: category || "General",
       dueDate: dateStr,

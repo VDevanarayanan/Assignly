@@ -4,6 +4,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import Delegated from "./pages/Delegated";
+import Inbox from "./pages/Inbox";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/delegated" element={<Delegated />} />
+        <Route path="/inbox" element={<Inbox />} />
       </Routes>
     </BrowserRouter>
   );

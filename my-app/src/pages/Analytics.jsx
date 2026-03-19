@@ -153,11 +153,15 @@ export default function Analytics() {
                 <span className="material-symbols-outlined text-xl">assignment</span>
                 My Tasks
               </Link>
-              <a className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap" href="#">
+              <Link to="/inbox" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
                 <span className="material-symbols-outlined text-xl">inbox</span>
                 Inbox
-                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 rounded-full">12</span>
-              </a>
+                {tasks.filter(t => t.assignee === user?.email && t.status === "PENDING").length > 0 && (
+                  <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-bold">
+                    {tasks.filter(t => t.assignee === user?.email && t.status === "PENDING").length}
+                  </span>
+                )}
+              </Link>
               <Link to="/delegated" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
                 <span className="material-symbols-outlined text-xl">group</span>
                 Delegated

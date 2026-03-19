@@ -105,8 +105,8 @@ export default function Dashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Strict origin guard: only ingest tasks where the current user is technically the assignee. (Excludes out-bound Delegated tasks)
-    const dashboardExclusiveTasks = tasks.filter(t => t.assignee === user?.email);
+    // Strict origin guard: only ingest tasks where the current user is technically the assignee AND they have accepted it.
+    const dashboardExclusiveTasks = tasks.filter(t => t.assignee === user?.email && t.status !== "PENDING" && t.status !== "REJECTED");
 
     // Dynamically calculate urgency based on local calendar
     let result = dashboardExclusiveTasks.map(t => {
@@ -196,11 +196,15 @@ export default function Dashboard() {
                 <span className="material-symbols-outlined text-xl">assignment</span>
                 My Tasks
               </a>
-              <a className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap" href="#">
+              <Link to="/inbox" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
                 <span className="material-symbols-outlined text-xl">inbox</span>
                 Inbox
-                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 rounded-full">12</span>
-              </a>
+                {tasks.filter(t => t.assignee === user?.email && t.status === "PENDING").length > 0 && (
+                  <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-bold">
+                    {tasks.filter(t => t.assignee === user?.email && t.status === "PENDING").length}
+                  </span>
+                )}
+              </Link>
               <Link to="/delegated" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
                 <span className="material-symbols-outlined text-xl">group</span>
                 Delegated
