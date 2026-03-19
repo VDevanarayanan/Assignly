@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { auth } from "../config/firebase";
-import { signOut } from "firebase/auth";
+import Header from "../components/Header";
+import Tabs from "../components/Tabs";
 
 export default function Inbox() {
   const navigate = useNavigate();
@@ -39,11 +39,6 @@ export default function Inbox() {
     fetchData();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    localStorage.removeItem("token");
-    navigate("/");
-  };
 
   const respondToTask = async (taskId, newStatus) => {
     if (isProcessing) return;
@@ -61,7 +56,7 @@ export default function Inbox() {
       });
       const data = await res.json();
       if (data.success) {
-        fetchData(); // Removes it securely from the PENDING filter array natively
+        fetchData();
       } else {
         alert("Failed to update task status.");
       }
@@ -71,7 +66,6 @@ export default function Inbox() {
     setIsProcessing(false);
   };
 
-  // Strictly filter tasks sitting precisely in the "PENDING" acceptance state natively sent by another creator
   const pendingTasks = useMemo(() => {
     if (!user?.email) return [];
     return tasks.filter(t => t.assignee === user.email && t.status === "PENDING" && t.creator !== user.email);
@@ -81,59 +75,13 @@ export default function Inbox() {
     <div className="flex bg-background-light dark:bg-background-dark font-sans relative overflow-x-hidden min-h-screen">
       <div className="flex h-full grow flex-col w-full transition-all duration-300">
         
-        {/* Top Header */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-6 md:px-10 py-3 bg-white dark:bg-slate-900 sticky top-0 z-40">
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Assignly Inbox</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back, {user?.name || "User"}!</p>
-          </div>
-          <div className="flex items-center gap-4 flex-1"></div>
-          <div className="flex items-center gap-4">
-            <button className="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors relative">
-              <span className="material-symbols-outlined text-xl">notifications</span>
-              {pendingTasks.length > 0 && (
-                <span className="absolute top-0 right-0 size-2.5 bg-red-500 rounded-full border border-white dark:border-slate-900"></span>
-              )}
-            </button>
-            <button 
-              className="px-4 py-2 text-sm font-bold text-slate-700 dark:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-full transition-colors"
-              onClick={handleLogout}
-            >
-              Sign Out
-            </button>
-          </div>
-        </header>
+        <Header title="Assignly" user={user} tasks={tasks} />
 
         <main className="flex flex-col flex-1 px-4 md:px-10 lg:px-40 py-8 overflow-y-auto w-full">
           
           {/* Navigation Tabs */}
-          <div className="mb-4">
-            <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
-              <Link to="/dashboard" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap text-sm">
-                <span className="material-symbols-outlined text-xl">assignment</span>
-                My Tasks
-              </Link>
-              <Link to="/inbox" className="flex items-center gap-2 border-b-2 border-primary text-primary px-6 pb-4 font-semibold whitespace-nowrap text-sm">
-                <span className="material-symbols-outlined text-xl">inbox</span>
-                Inbox
-                {pendingTasks.length > 0 && (
-                  <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-bold">
-                    {pendingTasks.length}
-                  </span>
-                )}
-              </Link>
-              <Link to="/delegated" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap text-sm">
-                <span className="material-symbols-outlined text-xl">group</span>
-                Delegated
-              </Link>
-              <Link to="/analytics" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap text-sm">
-                <span className="material-symbols-outlined text-xl">insights</span>
-                Analytics
-              </Link>
-            </div>
-          </div>
+          <Tabs tasks={tasks} user={user} />
 
-          {/* Page Header */}
           <div className="flex flex-col pb-6 pt-4 gap-1">
             <h2 className="text-slate-900 dark:text-white text-2xl font-bold tracking-tight">Incoming Tasks</h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Review assignments delegated to you by colleagues.</p>

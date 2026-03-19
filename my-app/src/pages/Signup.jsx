@@ -2,7 +2,6 @@ import { useState } from "react";
 import { auth, provider } from "../config/firebase";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/Auth.css";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -64,37 +63,97 @@ export default function Signup() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="app-logo">
-        <div className="logo-box">✓</div>
-        <div className="logo-text">Assignly</div>
+    <div className="flex items-center justify-center min-h-screen bg-background-light dark:bg-background-dark p-4 font-sans relative overflow-hidden">
+      {/* Decorative background blobs */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[100px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-500/10 blur-[100px] rounded-full"></div>
       </div>
 
-      <div className="auth-card">
-        <div className="auth-header">
-          <h2>Create Account</h2>
-          <p>Sign up to get started</p>
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-800 overflow-hidden relative z-10 transition-all duration-300 hover:shadow-primary/10">
+        
+        {/* Header Section */}
+        <div className="pt-12 pb-6 px-10 text-center relative">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-emerald-500 to-primary"></div>
+          <div className="mx-auto flex items-center justify-center size-16 rounded-2xl bg-primary text-white mb-6 shadow-xl shadow-primary/30 -rotate-3 hover:rotate-0 transition-transform duration-300">
+            <span className="material-symbols-outlined text-4xl leading-none">person_add</span>
+          </div>
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Create Account</h2>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Join Assignly to boost productivity</p>
         </div>
 
-        <div className="auth-body">
-          <button className="google-btn" onClick={handleGoogleSignup}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" />
-            Continue with Google
+        {/* Body Section */}
+        <div className="px-10 pb-12">
+          <button 
+            onClick={handleGoogleSignup}
+            className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold py-3.5 px-4 rounded-xl transition-all mb-6 group"
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="size-5 group-hover:scale-110 transition-transform" />
+            Sign Up with Google
           </button>
 
-          <div className="divider">OR</div>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800"></div>
+            <span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">OR EMAIL</span>
+            <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800"></div>
+          </div>
 
-          <input placeholder="Name" onChange={(e) => setName(e.target.value)} />
-          <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-          <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+          <div className="flex flex-col gap-4 mb-8">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Full Name</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">badge</span>
+                <input 
+                  type="text" 
+                  placeholder="John Doe" 
+                  onChange={(e) => setName(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary focus:bg-white dark:focus:bg-slate-800 transition-all font-medium text-sm outline-none"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">mail</span>
+                <input 
+                  type="email" 
+                  placeholder="you@example.com" 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary focus:bg-white dark:focus:bg-slate-800 transition-all font-medium text-sm outline-none"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Password</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">lock</span>
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary focus:bg-white dark:focus:bg-slate-800 transition-all font-medium text-sm outline-none"
+                />
+              </div>
+            </div>
+          </div>
 
-          <button className="submit-btn" onClick={handleSignup}>
-            Sign Up
+          <button 
+            onClick={handleSignup}
+            className="w-full bg-primary text-white font-bold text-base py-4 px-4 rounded-xl shadow-[0_8px_20px_-6px_rgba(80,72,229,0.5)] hover:shadow-[0_12px_24px_-6px_rgba(80,72,229,0.6)] hover:-translate-y-0.5 transition-all active:scale-[0.98] active:translate-y-0 mb-8 flex items-center justify-center gap-2"
+          >
+            Create Account
+            <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
           </button>
 
-          <p className="switch">
-            Already have an account? <Link to="/">Login</Link>
-          </p>
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 text-center border border-slate-100 dark:border-slate-800">
+            <p className="text-slate-600 dark:text-slate-400 font-medium text-sm">
+              Already have an account?{" "}
+              <Link to="/" className="text-primary hover:text-primary/80 transition-colors font-bold ml-1 inline-flex items-center gap-1">
+                Log in here
+                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

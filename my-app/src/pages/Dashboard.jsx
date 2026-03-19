@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { auth } from "../config/firebase";
-import { signOut } from "firebase/auth";
 import TaskModal from "../components/TaskModal";
+import Header from "../components/Header";
+import Tabs from "../components/Tabs";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -47,12 +47,6 @@ export default function Dashboard() {
     }
     fetchData();
   }, [navigate]);
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    localStorage.removeItem("token");
-    navigate("/");
-  };
 
   const updateTaskStatus = async (taskId, newStatus) => {
     const token = localStorage.getItem("token");
@@ -147,40 +141,24 @@ export default function Dashboard() {
 
 
   return (
-    <div className="flex h-screen bg-background-light dark:bg-background-dark font-sans relative">
+    <div className="flex bg-background-light dark:bg-background-dark font-sans relative overflow-x-hidden">
       
-      {/* Dashboard Background (Blurred under modal) */}
-      <div className={`layout-container flex h-full grow flex-col transition-all duration-300 ${isModalOpen ? "blur-sm brightness-95" : ""}`}>
+      {/* Sidebar for medium/large screens */}
+      {/* ... */}
+      
+      <div className="flex h-screen grow flex-col w-full transition-all duration-300">
         
-        {/* Top Navigation */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-6 md:px-10 py-3 bg-white dark:bg-background-dark sticky top-0 z-40">
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back, {user?.name || "User"}!</p>
-          </div>
-          <div className="flex items-center gap-4 flex-1">
-            {/* SEARCH BAR REMOVED AS REQUESTED */}
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
-              <span className="material-symbols-outlined text-xl">notifications</span>
-            </button>
-            <button 
-              className="px-4 py-2 text-sm font-bold text-slate-700 dark:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-full transition-colors"
-              onClick={handleLogout}
-            >
-              Sign Out
-            </button>
-          </div>
-        </header>
+        {/* Dynamic Global Header */}
+        <Header title="Assignly" user={user} tasks={tasks} />
 
-        <main className="max-w-[1200px] mx-auto w-full px-4 md:px-10 py-8">
+        {/* Scrollable Tasks View */}
+        <main className="flex flex-col flex-1 px-4 md:px-10 py-6 overflow-y-auto w-full max-w-[1600px] mx-auto">
           {/* Tabs & Header */}
           <div className="flex flex-col gap-6 mb-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Good morning, {user?.name || "Alex"}</h1>
-                <p className="text-slate-500 mt-1">You have {tasks.length} tasks to complete today.</p>
+                <p className="text-slate-500 mt-1">You have {tasks.filter(t => t.assignee === user?.email && t.status !== "COMPLETED").length} task(s) to complete.</p>
               </div>
               <button 
                 onClick={() => setIsModalOpen(true)}
@@ -191,29 +169,7 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
-              <a className="flex items-center gap-2 border-b-2 border-primary text-primary px-6 pb-4 font-semibold whitespace-nowrap" href="#">
-                <span className="material-symbols-outlined text-xl">assignment</span>
-                My Tasks
-              </a>
-              <Link to="/inbox" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
-                <span className="material-symbols-outlined text-xl">inbox</span>
-                Inbox
-                {tasks.filter(t => t.assignee === user?.email && t.status === "PENDING").length > 0 && (
-                  <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-bold">
-                    {tasks.filter(t => t.assignee === user?.email && t.status === "PENDING").length}
-                  </span>
-                )}
-              </Link>
-              <Link to="/delegated" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
-                <span className="material-symbols-outlined text-xl">group</span>
-                Delegated
-              </Link>
-              <Link to="/analytics" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
-                <span className="material-symbols-outlined text-xl">insights</span>
-                Analytics
-              </Link>
-            </div>
+            <Tabs tasks={tasks} user={user} />
           </div>
 
           {/* Filters */}
