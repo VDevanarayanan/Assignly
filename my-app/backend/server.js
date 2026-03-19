@@ -66,8 +66,8 @@ app.get("/dashboard", async (req, res) => {
       email: decoded.email,
     };
 
-    // Only show tasks assigned to this user
-    const userTasks = globalTasks.filter(t => t.assignee === userEmail);
+    // Show tasks either assigned to this user or created by this user
+    const userTasks = globalTasks.filter(t => t.assignee === userEmail || t.creator === userEmail);
 
     res.json({ success: true, user, tasks: userTasks });
   } catch (err) {
@@ -114,7 +114,8 @@ app.post("/dashboard/task", async (req, res) => {
       category: category || "General",
       dueDate: dateStr,
       rawDeadline: deadline || null,
-      assignee: finalAssignee
+      assignee: finalAssignee,
+      creator: userEmail
     };
 
     globalTasks.push(newTask);
@@ -167,8 +168,8 @@ app.delete("/dashboard/task/:id", async (req, res) => {
     const taskIndex = globalTasks.findIndex(t => t.id === taskId);
     if (taskIndex > -1) {
       const task = globalTasks[taskIndex];
-      // Only allow deletion if assigned to user AND marked as completed
-      if (task.assignee === userEmail && task.status === "COMPLETED") {
+      // Allow deletion if assigned to user or created by user AND marked as completed
+      if ((task.assignee === userEmail || task.creator === userEmail) && task.status === "COMPLETED") {
         globalTasks.splice(taskIndex, 1);
         saveTasks(); // Persist to database
         res.json({ success: true, message: "Task deleted" });

@@ -158,10 +158,10 @@ export default function Analytics() {
                 Inbox
                 <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 rounded-full">12</span>
               </a>
-              <a className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap" href="#">
+              <Link to="/delegated" className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-6 pb-4 font-medium transition-colors whitespace-nowrap">
                 <span className="material-symbols-outlined text-xl">group</span>
                 Delegated
-              </a>
+              </Link>
               <Link to="/analytics" className="flex items-center gap-2 border-b-2 border-primary text-primary px-6 pb-4 font-semibold whitespace-nowrap">
                 <span className="material-symbols-outlined text-xl">insights</span>
                 Analytics
