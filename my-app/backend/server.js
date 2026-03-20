@@ -11,7 +11,7 @@ app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
 admin.initializeApp({
-  projectId: "taskly-app-vdev"
+  projectId: "worksync-4bf52"
 });
 
 app.post("/auth/login", async (req, res) => {
@@ -25,6 +25,11 @@ app.post("/auth/login", async (req, res) => {
       email: decoded.email,
       name: decoded.name || decoded.email.split("@")[0],
     };
+
+    if (!globalUsers.has(decoded.email)) {
+      globalUsers.add(decoded.email);
+      saveUsers();
+    }
 
     res.json({ success: true, user });
   } catch (err) {
@@ -46,11 +51,31 @@ if (fs.existsSync(tasksFilePath)) {
   }
 }
 
+const usersFilePath = path.join(__dirname, 'users.json');
+let globalUsers = new Set();
+
+if (fs.existsSync(usersFilePath)) {
+  try {
+    const data = fs.readFileSync(usersFilePath, 'utf8');
+    globalUsers = new Set(JSON.parse(data));
+  } catch (err) {
+    console.error("Error reading users database:", err);
+  }
+}
+
 const saveTasks = () => {
   try {
     fs.writeFileSync(tasksFilePath, JSON.stringify(globalTasks, null, 2));
   } catch (err) {
     console.error("Error saving tasks recursively:", err);
+  }
+};
+
+const saveUsers = () => {
+  try {
+    fs.writeFileSync(usersFilePath, JSON.stringify(Array.from(globalUsers), null, 2));
+  } catch (err) {
+    console.error("Error saving users recursively:", err);
   }
 };
 
@@ -65,6 +90,24 @@ app.get("/dashboard", async (req, res) => {
       name: decoded.name || decoded.email.split("@")[0],
       email: decoded.email,
     };
+
+    if (!globalUsers.has(decoded.email)) {
+      globalUsers.add(decoded.email);
+      saveUsers();
+    }
+
+    let tasksUpdated = false;
+    globalTasks.forEach(t => {
+      if (t.assignee === userEmail && t.status === "PENDING_SIGNUP") {
+        t.status = "PENDING";
+        t.joinedAt = new Date().toISOString();
+        tasksUpdated = true;
+      }
+    });
+
+    if (tasksUpdated) {
+      saveTasks();
+    }
 
     // Show tasks either assigned to this user or created by this user
     const userTasks = globalTasks.filter(t => t.assignee === userEmail || t.creator === userEmail);
@@ -82,10 +125,23 @@ app.post("/dashboard/task", async (req, res) => {
   try {
     const decoded = await admin.auth().verifyIdToken(token);
     const userEmail = decoded.email;
-    const { title, description, assignee, deadline, category } = req.body;
+    const { title, description, assignee, deadline, category, forceCreate } = req.body;
     
     // Auto-assign to self if empty
     const finalAssignee = assignee && assignee.trim() !== "" ? assignee : userEmail;
+
+    let userExists = true;
+    if (finalAssignee !== userEmail) {
+      userExists = globalUsers.has(finalAssignee);
+    }
+
+    if (!userExists && !forceCreate) {
+      return res.json({ 
+        success: false, 
+        error: 'USER_NOT_FOUND', 
+        message: 'This mail does not have an account yet but if created in the future the task will be delegated. If you want to send in the future when another person has signed up with that mail, then this task will be delegated to that user.' 
+      });
+    }
 
     // Convert deadline and check urgency
     let dateStr = "No Date";
@@ -109,7 +165,7 @@ app.post("/dashboard/task", async (req, res) => {
       id: Date.now().toString(),
       title: title || "New Task",
       description: description || "No description provided.",
-      status: finalAssignee !== userEmail ? "PENDING" : "ACCEPTED",
+      status: finalAssignee === userEmail ? "ACCEPTED" : (!userExists ? "PENDING_SIGNUP" : "PENDING"),
       priority: priority, // fallback
       category: category || "General",
       dueDate: dateStr,
@@ -133,7 +189,7 @@ app.put("/dashboard/task/:id", async (req, res) => {
   try {
     const decoded = await admin.auth().verifyIdToken(token);
     const taskId = req.params.id;
-    const { status } = req.body;
+    const { status, clearJoinedAt } = req.body;
     
     // Allow updating tasks regardless of user for simplicity in this demo,
     // but in a real app, verify `decoded.email === task.assignee`.
@@ -149,6 +205,10 @@ app.put("/dashboard/task/:id", async (req, res) => {
         } else {
           task.completedAt = null;
         }
+      }
+
+      if (clearJoinedAt) {
+        delete task.joinedAt;
       }
 
       saveTasks(); // Persist to database

@@ -216,7 +216,7 @@ export default function Dashboard() {
           </div>
 
           {/* Task List or Empty State */}
-          {tasks.length === 0 ? (
+          {tasks.filter(t => t.assignee === user?.email && t.status !== "PENDING" && t.status !== "REJECTED").length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 mt-10 text-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
               <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 mb-6 shadow-inner">
                 <span className="material-symbols-outlined text-4xl">inventory_2</span>
@@ -234,7 +234,7 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAndSortedTasks.map((task, i) => (
-                <div key={task.id || i} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+                <div key={task.id || i} style={{ animationDelay: `${i * 75}ms` }} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-in flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start mb-4 relative">
                       <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold px-2.5 py-1 rounded-lg">

@@ -11,7 +11,7 @@ export default function Tabs({ tasks, user }) {
     <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar mb-8">
       <Link 
         to="/dashboard" 
-        className={`flex items-center gap-2 border-b-2 px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/dashboard' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
+        className={`flex items-center gap-2 border-b-2 px-4 sm:px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/dashboard' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
       >
         <span className="material-symbols-outlined text-xl">assignment</span>
         My Tasks
@@ -19,7 +19,7 @@ export default function Tabs({ tasks, user }) {
       
       <Link 
         to="/inbox" 
-        className={`flex items-center gap-2 border-b-2 px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/inbox' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
+        className={`flex items-center gap-2 border-b-2 px-4 sm:px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/inbox' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
       >
         <span className="material-symbols-outlined text-xl">inbox</span>
         Inbox
@@ -32,7 +32,7 @@ export default function Tabs({ tasks, user }) {
       
       <Link 
         to="/delegated" 
-        className={`flex items-center gap-2 border-b-2 px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/delegated' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
+        className={`flex items-center gap-2 border-b-2 px-4 sm:px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/delegated' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
       >
         <span className="material-symbols-outlined text-xl">group</span>
         Delegated
@@ -40,7 +40,7 @@ export default function Tabs({ tasks, user }) {
       
       <Link 
         to="/analytics" 
-        className={`flex items-center gap-2 border-b-2 px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/analytics' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
+        className={`flex items-center gap-2 border-b-2 px-4 sm:px-6 pb-4 whitespace-nowrap text-sm ${currentPath === '/analytics' ? 'border-primary text-primary font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors'}`}
       >
         <span className="material-symbols-outlined text-xl">insights</span>
         Analytics

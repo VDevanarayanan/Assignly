@@ -147,27 +147,12 @@ export default function Delegated() {
                 ></div>
                 <div className="flex w-full grow flex-col items-stretch justify-center gap-2 py-6 px-6 sm:px-8 relative">
                   
-                  {/* Action Menu Hook */}
-                  <button 
-                    onClick={() => setActiveMenuId(activeMenuId === highlightedTask.id ? null : highlightedTask.id)}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    <span className="material-symbols-outlined">more_horiz</span>
-                  </button>
-                  {activeMenuId === highlightedTask.id && (
-                    <div className="absolute right-4 top-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-2 z-10 w-40 animate-in fade-in slide-in-from-top-2">
-                       <button onClick={() => updateTaskStatus(highlightedTask.id, 'ACCEPTED')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">Accepted</button>
-                       <button onClick={() => updateTaskStatus(highlightedTask.id, 'IN PROGRESS')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">In Progress</button>
-                       <button onClick={() => updateTaskStatus(highlightedTask.id, 'COMPLETED')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">Completed</button>
-                       <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
-                       <button onClick={() => deleteTask(highlightedTask.id)} className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 font-medium">Delete Task</button>
-                    </div>
-                  )}
+                  {/* Action Menu Hook removed for Delegator */}
 
                   <div className="flex items-center gap-2">
-                    <span className={`size-2 rounded-full ${highlightedTask.status === "IN PROGRESS" ? "bg-amber-500" : "bg-blue-500"}`}></span>
-                    <p className={`${highlightedTask.status === "IN PROGRESS" ? "text-amber-600 dark:text-amber-400" : "text-blue-600 dark:text-blue-400"} text-xs font-bold uppercase tracking-wider`}>
-                      {highlightedTask.status || "Assigned"}
+                    <span className={`size-2 rounded-full ${highlightedTask.status === "IN PROGRESS" ? "bg-amber-500" : highlightedTask.status === "PENDING_SIGNUP" ? "bg-indigo-500" : "bg-blue-500"}`}></span>
+                    <p className={`${highlightedTask.status === "IN PROGRESS" ? "text-amber-600 dark:text-amber-400" : highlightedTask.status === "PENDING_SIGNUP" ? "text-indigo-600 dark:text-indigo-400" : "text-blue-600 dark:text-blue-400"} text-xs font-bold uppercase tracking-wider`}>
+                      {highlightedTask.status === "PENDING_SIGNUP" ? "WAITING FOR SIGNUP" : (highlightedTask.status || "Assigned")}
                     </p>
                   </div>
                   <h3 className="text-slate-900 dark:text-white text-xl font-bold leading-tight">{highlightedTask.title}</h3>
@@ -201,14 +186,14 @@ export default function Delegated() {
                 <p className="text-slate-500 max-w-sm mx-auto mb-6 text-sm">You haven't assigned any tasks to the team. Start delegating to track their progress here.</p>
               </div>
             ) : (
-              listTasks.map((task) => {
+              listTasks.map((task, i) => {
                 const isCompleted = task.status === "COMPLETED";
                 const badgeColor = isCompleted ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" : 
                                   task.status === "IN PROGRESS" ? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" :
                                   "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
 
                 return (
-                  <div key={task.id} className={`flex items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl hover:shadow-md transition-shadow relative ${isCompleted ? 'opacity-75' : ''}`}>
+                  <div key={task.id} style={{ animationDelay: `${i * 100}ms` }} className={`flex items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-in relative ${isCompleted ? 'opacity-75' : ''}`}>
                     <div className="flex-1 flex items-center gap-4 min-w-0">
                       <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-900 flex items-center justify-center shrink-0">
                         <span className="text-sm font-bold text-slate-500">{task.assignee?.substring(0, 2).toUpperCase() || "UN"}</span>
@@ -230,24 +215,7 @@ export default function Delegated() {
                         </div>
                       </div>
                       
-                      {/* Dots Menu */}
-                      <div className="relative">
-                        <button 
-                          onClick={() => setActiveMenuId(activeMenuId === task.id ? null : task.id)}
-                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1"
-                        >
-                          <span className="material-symbols-outlined">more_vert</span>
-                        </button>
-                        {activeMenuId === task.id && (
-                          <div className="absolute right-0 top-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-2 z-10 w-40 animate-in fade-in slide-in-from-top-2">
-                             <button onClick={() => updateTaskStatus(task.id, 'ACCEPTED')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">Accepted</button>
-                             <button onClick={() => updateTaskStatus(task.id, 'IN PROGRESS')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">In Progress</button>
-                             <button onClick={() => updateTaskStatus(task.id, 'COMPLETED')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">Completed</button>
-                             <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
-                             <button onClick={() => deleteTask(task.id)} className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 font-medium">Delete Task</button>
-                          </div>
-                        )}
-                      </div>
+                      {/* Dots Menu removed for Delegator */}
                     </div>
                   </div>
                 );

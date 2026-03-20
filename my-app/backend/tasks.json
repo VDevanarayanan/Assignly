@@ -15,15 +15,15 @@
     "id": "1773896058099",
     "title": "Brush teeth",
     "description": "No description provided.",
-    "status": "COMPLETED",
+    "status": "ACCEPTED",
     "priority": "Normal",
     "category": "Product",
     "dueDate": "No Date",
     "rawDeadline": null,
     "assignee": "vdcoder69@gmail.com",
     "creator": "vdsidehustle69@gmail.com",
-    "completedAt": "2026-03-19T05:04:07.589Z",
-    "updatedAt": "2026-03-19T05:04:07.589Z"
+    "completedAt": null,
+    "updatedAt": "2026-03-20T06:04:09.909Z"
   },
   {
     "id": "1773897374511",
@@ -52,5 +52,63 @@
     "creator": "vdsidehustle69@gmail.com",
     "updatedAt": "2026-03-19T05:17:33.765Z",
     "completedAt": null
+  },
+  {
+    "id": "1773899547297",
+    "title": "Do project",
+    "description": "No description provided.",
+    "status": "ACCEPTED",
+    "priority": "Normal",
+    "category": "Product",
+    "dueDate": "No Date",
+    "rawDeadline": null,
+    "assignee": "vinoddevanarayanan@gmail.com",
+    "creator": "vdsidehustle69@gmail.com",
+    "updatedAt": "2026-03-19T06:03:39.493Z",
+    "completedAt": null
+  },
+  {
+    "id": "1773900183942",
+    "title": "Make a group name",
+    "description": "No description provided.",
+    "status": "ACCEPTED",
+    "priority": "Normal",
+    "category": "Strategy",
+    "dueDate": "No Date",
+    "rawDeadline": null,
+    "assignee": "vinoddevanarayanan@gmail.com",
+    "creator": "vdsidehustle69@gmail.com",
+    "updatedAt": "2026-03-19T06:03:35.817Z",
+    "joinedAt": "2026-03-19T06:03:29.405Z",
+    "completedAt": null
+  },
+  {
+    "id": "1773986896071",
+    "title": "Do laundry",
+    "description": "No description provided.",
+    "status": "COMPLETED",
+    "priority": "Urgent",
+    "category": "General",
+    "dueDate": "Mar 21, 2026",
+    "rawDeadline": "2026-03-21",
+    "assignee": "vdsidehustle69@gmail.com",
+    "creator": "vdsidehustle69@gmail.com",
+    "updatedAt": "2026-03-20T06:08:22.388Z",
+    "completedAt": "2026-03-20T06:08:22.388Z"
+  },
+  {
+    "id": "1773986974814",
+    "title": "Call HR",
+    "description": "Call HR to ask about the next assignment and deadline",
+    "status": "COMPLETED",
+    "priority": "Urgent",
+    "category": "Product",
+    "dueDate": "Mar 22, 2026",
+    "rawDeadline": "2026-03-22",
+    "assignee": "vdcoder69@gmail.com",
+    "creator": "vdsidehustle69@gmail.com",
+    "updatedAt": "2026-03-20T06:10:12.074Z",
+    "joinedAt": "2026-03-20T06:09:53.428Z",
+    "completedAt": "2026-03-20T06:10:12.074Z"
   }
 ]

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { auth, provider } from "../config/firebase";
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithPopup, getAdditionalUserInfo, updatePassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Signup() {
@@ -9,27 +9,43 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [needsPassword, setNeedsPassword] = useState(false);
+  const [googleUser, setGoogleUser] = useState(null);
+
+  const finishSignup = async (token) => {
+    const res = await fetch("http://localhost:5001/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem("token", token);
+      navigate("/dashboard");
+    } else {
+      alert("Signup failed");
+    }
+  };
+
+  const handleSaveGooglePassword = async () => {
+    if (password.length < 6) { return alert("Password must be at least 6 characters."); }
+    try {
+      await updatePassword(googleUser, password);
+      const token = await googleUser.getIdToken();
+      await finishSignup(token);
+    } catch (err) { alert("Error saving password: " + err.message); }
+  };
+
+  const skipGooglePassword = async () => {
+    const token = await googleUser.getIdToken();
+    await finishSignup(token);
+  };
 
   const handleSignup = async () => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const token = await result.user.getIdToken();
-
-      const res = await fetch("http://localhost:5001/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await res.json();
-      console.log("Signup response:", data);
-
-      if (data.success) {
-        localStorage.setItem("token", token);
-        navigate("/dashboard");
-      } else {
-        alert("Signup failed");
-      }
+      await finishSignup(token);
     } catch (err) {
       console.error(err);
       alert("Error signing up: " + err.message);
@@ -39,22 +55,14 @@ export default function Signup() {
   const handleGoogleSignup = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      const token = await result.user.getIdToken();
-
-      const res = await fetch("http://localhost:5001/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await res.json();
-      console.log("Signup response:", data);
-
-      if (data.success) {
-        localStorage.setItem("token", token);
-        navigate("/dashboard");
+      const additionalInfo = getAdditionalUserInfo(result);
+      
+      if (additionalInfo?.isNewUser) {
+        setGoogleUser(result.user);
+        setNeedsPassword(true);
       } else {
-        alert("Signup failed");
+        const token = await result.user.getIdToken();
+        await finishSignup(token);
       }
     } catch (err) {
       console.error(err);
@@ -73,20 +81,63 @@ export default function Signup() {
       <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-800 overflow-hidden relative z-10 transition-all duration-300 hover:shadow-primary/10">
         
         {/* Header Section */}
-        <div className="pt-12 pb-6 px-10 text-center relative">
+        <div className="pt-10 sm:pt-12 pb-6 px-6 sm:px-10 text-center relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-emerald-500 to-primary"></div>
-          <div className="mx-auto flex items-center justify-center size-16 rounded-2xl bg-primary text-white mb-6 shadow-xl shadow-primary/30 -rotate-3 hover:rotate-0 transition-transform duration-300">
-            <span className="material-symbols-outlined text-4xl leading-none">person_add</span>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-4">
+            <div className="flex items-center justify-center size-12 sm:size-16 rounded-2xl bg-primary text-white shadow-xl shadow-primary/30 rotate-3 hover:rotate-0 transition-transform duration-300">
+              <span className="material-symbols-outlined text-3xl sm:text-4xl leading-none">task_alt</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+              Assign<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-500">ly</span>
+            </h1>
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Create Account</h2>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Join Assignly to boost productivity</p>
+          
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-200 tracking-tight mb-1 mt-6">Create Account</h2>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Join us to boost productivity</p>
         </div>
 
         {/* Body Section */}
-        <div className="px-10 pb-12">
+        {needsPassword ? (
+          <div className="px-6 sm:px-10 pb-10 sm:pb-12 text-center animate-in fade-in slide-in-from-bottom-4">
+            <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-6 shadow-inner">
+              <span className="material-symbols-outlined text-3xl">key</span>
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Secure Your Account</h3>
+            <p className="text-slate-500 font-medium text-sm mb-8 leading-relaxed max-w-sm mx-auto">You successfully signed up with Google. Please set a password so you can also formally log in via email later.</p>
+            
+            <div className="text-left mb-6">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Create Password</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">lock</span>
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary focus:bg-white dark:focus:bg-slate-800 transition-all font-medium text-sm outline-none"
+                />
+              </div>
+            </div>
+
+            <button 
+              onClick={handleSaveGooglePassword}
+              className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold text-base py-3.5 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl shadow-[0_8px_20px_-6px_rgba(80,72,229,0.5)] mb-3 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-sm font-bold">save</span>
+              Save Password & Continue
+            </button>
+            <button 
+              onClick={skipGooglePassword}
+              className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-base py-3.5 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer"
+            >
+              Skip for now
+            </button>
+          </div>
+        ) : (
+        <div className="px-6 sm:px-10 pb-10 sm:pb-12">
           <button 
             onClick={handleGoogleSignup}
-            className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold py-3.5 px-4 rounded-xl transition-all mb-6 group"
+            className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl mb-6 group cursor-pointer"
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="size-5 group-hover:scale-110 transition-transform" />
             Sign Up with Google
@@ -155,6 +206,7 @@ export default function Signup() {
             </p>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

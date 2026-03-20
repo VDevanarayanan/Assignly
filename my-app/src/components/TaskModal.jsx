@@ -7,12 +7,13 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
   const [assignee, setAssignee] = useState("");
   const [deadline, setDeadline] = useState("");
   const [category, setCategory] = useState("Design");
+  const [warningMsg, setWarningMsg] = useState("");
 
   if (!isOpen) return null;
 
   const todayStr = new Date().toISOString().split('T')[0];
 
-  const handleCreateTask = async () => {
+  const handleCreateTask = async (forceRequest = false) => {
     if (!title) return alert("Task title is required");
     
     if (requireAssignee && !assignee.trim()) {
@@ -29,6 +30,7 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
     }
 
     setIsSubmitting(true);
+    setWarningMsg("");
     
     const token = localStorage.getItem("token");
     try {
@@ -38,9 +40,16 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}` 
         },
-        body: JSON.stringify({ title, description, assignee, deadline, category })
+        body: JSON.stringify({ title, description, assignee, deadline, category, forceCreate: forceRequest === true })
       });
       const data = await res.json();
+      
+      if (!data.success && data.error === 'USER_NOT_FOUND') {
+        setWarningMsg(data.message);
+        setIsSubmitting(false);
+        return;
+      }
+      
       if (data.success) {
         // Reset local form bounds
         setTitle("");
@@ -48,11 +57,12 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
         setAssignee("");
         setDeadline("");
         setCategory("Design");
+        setWarningMsg("");
         
         onSuccess(); // Triggers the parent hook API refresh
         onClose();   // Drops the modal wrapper
       } else {
-        alert("Failed to create task");
+        alert("Failed to create task: " + (data.message || "Unknown error"));
       }
     } catch (err) {
       console.error(err);
@@ -66,7 +76,7 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
       <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[921px]">
         
         {/* Modal Header */}
-        <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 animate-in slide-in-from-bottom-2">
+        <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 animate-in slide-in-from-bottom-2">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Create New Task</h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Fill in the details to delegate a new assignment.</p>
@@ -80,7 +90,7 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
         </div>
 
         {/* Modal Body (Scrollable) */}
-        <div className="px-8 py-6 overflow-y-auto space-y-6">
+        <div className="px-5 sm:px-8 py-5 sm:py-6 overflow-y-auto space-y-6">
           {/* Assign To & Deadline Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
@@ -171,18 +181,35 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
           </div>
         </div>
 
+        {warningMsg && (
+          <div className="px-5 sm:px-8 pb-6 animate-in fade-in duration-300">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex gap-3">
+                <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 shrink-0">warning</span>
+                <p className="text-amber-800 dark:text-amber-200 text-sm font-medium leading-relaxed">{warningMsg}</p>
+              </div>
+              <button 
+                onClick={() => handleCreateTask(true)}
+                className="w-full sm:w-auto whitespace-nowrap px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-lg shadow-md transition-colors shrink-0"
+              >
+                Force Delegate
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Modal Footer */}
-        <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-4">
+        <div className="px-5 sm:px-8 py-5 sm:py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4">
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:bg-transparent bg-slate-100 sm:bg-transparent dark:hover:bg-slate-800 transition-colors"
           >
             Cancel
           </button>
           <button 
             onClick={handleCreateTask}
             disabled={isSubmitting}
-            className="px-6 py-2.5 rounded-xl font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all flex items-center gap-2 disabled:opacity-50"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-lg">{isSubmitting ? "hourglass_empty" : "send"}</span>
             {isSubmitting ? "Creating..." : "Create Task"}

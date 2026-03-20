@@ -72,20 +72,27 @@ export default function Login() {
       <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-800 overflow-hidden relative z-10 transition-all duration-300 hover:shadow-primary/10">
         
         {/* Header Section */}
-        <div className="pt-12 pb-8 px-10 text-center relative">
+        <div className="pt-10 sm:pt-12 pb-6 sm:pb-8 px-6 sm:px-10 text-center relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary"></div>
-          <div className="mx-auto flex items-center justify-center size-16 rounded-2xl bg-primary text-white mb-6 shadow-xl shadow-primary/30 rotate-3 hover:rotate-0 transition-transform duration-300">
-            <span className="material-symbols-outlined text-4xl leading-none">task_alt</span>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-4">
+            <div className="flex items-center justify-center size-12 sm:size-16 rounded-2xl bg-primary text-white shadow-xl shadow-primary/30 rotate-3 hover:rotate-0 transition-transform duration-300">
+              <span className="material-symbols-outlined text-3xl sm:text-4xl leading-none">task_alt</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+              Assign<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">ly</span>
+            </h1>
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Welcome Back</h2>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Sign in to Assignly to continue</p>
+          
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-200 tracking-tight mb-1 mt-6">Welcome Back</h2>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Sign in to continue</p>
         </div>
 
         {/* Body Section */}
-        <div className="px-10 pb-12">
+        <div className="px-6 sm:px-10 pb-10 sm:pb-12">
           <button 
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold py-3.5 px-4 rounded-xl transition-all mb-6 group"
+            className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl mb-6 group cursor-pointer"
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="size-5 group-hover:scale-110 transition-transform" />
             Continue with Google
@@ -113,7 +120,6 @@ export default function Login() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Password</label>
-                <a href="#" className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">Forgot?</a>
               </div>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">lock</span>

@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "default": "worksync-4bf52"
+  },
   "targets": {},
   "etags": {}
 }

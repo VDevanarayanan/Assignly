@@ -3,18 +3,47 @@
 @plugin "@tailwindcss/container-queries";
 
 @theme {
-  --color-primary: #5048e5;
-  --color-background-light: #f6f6f8;
-  --color-background-dark: #121121;
+  --color-primary: #2563EB;
+  --color-primary-light: #60A5FA;
+  --color-primary-dark: #1D4ED8;
+  --color-primary-darker: #1E3A8A;
+  --color-background-light: #f4f7fe;
+  --color-background-dark: #0f172a;
   --font-display: "Inter", sans-serif;
   --radius-DEFAULT: 0.5rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
   --radius-full: 9999px;
+
+  --animate-slide-in: slide-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+button {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px -5px rgba(37, 99, 235, 0.15) !important;
+}
+
+button:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
 }

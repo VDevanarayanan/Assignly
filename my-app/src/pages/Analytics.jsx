@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
 import Header from "../components/Header";
+import Tabs from "../components/Tabs";
 import { auth } from '../config/firebase';
 import { signOut } from 'firebase/auth';
 
@@ -40,12 +41,14 @@ export default function Analytics() {
     navigate("/");
   };
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === "COMPLETED").length;
+  const myTasks = tasks.filter(t => t.assignee === user?.email && t.status !== "REJECTED");
+
+  const totalTasks = myTasks.length;
+  const completedTasks = myTasks.filter(t => t.status === "COMPLETED").length;
   const pendingTasks = totalTasks - completedTasks;
   const productivityScore = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
-  const categoryCounts = tasks.reduce((acc, t) => {
+  const categoryCounts = myTasks.reduce((acc, t) => {
     acc[t.category] = (acc[t.category] || 0) + 1;
     return acc;
   }, {});
@@ -106,7 +109,7 @@ export default function Analytics() {
     }
 
     // Process all completed tasks exactly into their bins
-    tasks.forEach(t => {
+    myTasks.forEach(t => {
       if (t.status === "COMPLETED") {
         // If it lacks completion sync metadata, powerfully infer the origin time via ID (Date.now()) integer.
         const originTimestamp = t.completedAt ? new Date(t.completedAt) : new Date(parseInt(t.id));
