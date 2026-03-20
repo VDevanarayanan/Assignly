@@ -9,10 +9,13 @@ import { signOut } from 'firebase/auth';
 export default function Analytics() {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [isMounted, setIsMounted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
+    const timer = setTimeout(() => setIsMounted(true), 150);
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchData = async () => {
@@ -111,8 +114,11 @@ export default function Analytics() {
     // Process all completed tasks exactly into their bins
     myTasks.forEach(t => {
       if (t.status === "COMPLETED") {
-        // If it lacks completion sync metadata, powerfully infer the origin time via ID (Date.now()) integer.
-        const originTimestamp = t.completedAt ? new Date(t.completedAt) : new Date(parseInt(t.id));
+        // Safely fallback to update time if missing completion timestamp (avoiding creation sequence ID)
+        let originTimestamp = new Date();
+        if (t.completedAt) originTimestamp = new Date(t.completedAt);
+        else if (t.updatedAt) originTimestamp = new Date(t.updatedAt);
+        
         const compDateStr = getLocalDateString(originTimestamp);
         
         const bin = bins.find(b => b.dateStr === compDateStr);
@@ -257,9 +263,9 @@ export default function Analytics() {
                         cx="16"
                         cy="16"
                         pathLength="100"
-                        className={`fill-transparent ${seg.color.stroke} transition-all duration-500`}
+                        className={`fill-transparent ${seg.color.stroke} transition-all duration-1000 ease-out`}
                         strokeWidth="8"
-                        strokeDasharray={seg.dashArray}
+                        strokeDasharray={isMounted ? seg.dashArray : "0 100"}
                         strokeDashoffset={seg.dashOffset}
                       />
                     ))}

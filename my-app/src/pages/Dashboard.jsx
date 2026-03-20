@@ -180,47 +180,56 @@ export default function Dashboard() {
             <Tabs tasks={tasks} user={user} />
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3 mb-8 overflow-x-auto no-scrollbar">
-            {/* Status Dropdown */}
-            <div className="relative shrink-0">
-              <select 
-                value={filterStatus} 
-                onChange={e => setFilterStatus(e.target.value)}
-                className="flex items-center gap-2 pl-4 pr-10 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors appearance-none outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 cursor-pointer"
-              >
-                <option value="All">Status: All</option>
-                <option value="ACCEPTED">Accepted</option>
-                <option value="IN PROGRESS">In Progress</option>
-                <option value="COMPLETED">Completed</option>
-              </select>
+          {/* Filters Container */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md w-full relative z-20">
+            <div className="flex items-center gap-2 pr-4 sm:border-r border-slate-200 dark:border-slate-700">
+              <span className="material-symbols-outlined text-primary">filter_list</span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Filters</span>
             </div>
+            
+            <div className="flex flex-wrap flex-1 gap-3 overflow-x-auto no-scrollbar items-center">
+              {/* Status Dropdown */}
+              <div className="relative shrink-0">
+                <select 
+                  value={filterStatus} 
+                  onChange={e => setFilterStatus(e.target.value)}
+                  className="flex items-center gap-2 pl-4 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors appearance-none outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm"
+                >
+                  <option value="All">Status: All</option>
+                  <option value="ACCEPTED">Accepted</option>
+                  <option value="IN PROGRESS">In Progress</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
+              </div>
 
-            {/* Category Dropdown */}
-            <div className="relative shrink-0">
-              <select 
-                value={filterCategory} 
-                onChange={e => setFilterCategory(e.target.value)}
-                className="flex items-center gap-2 pl-4 pr-10 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors appearance-none outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 cursor-pointer"
+              {/* Category Dropdown */}
+              <div className="relative shrink-0">
+                <select 
+                  value={filterCategory} 
+                  onChange={e => setFilterCategory(e.target.value)}
+                  className="flex items-center gap-2 pl-4 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors appearance-none outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm"
+                >
+                  <option value="All">Category: All</option>
+                  <option value="Design">Design</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product">Product</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Strategy">Strategy</option>
+                  <option value="General">General</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
+              </div>
+
+              {/* Priority Sort Button */}
+              <button 
+                onClick={() => setSortUrgentFirst(!sortUrgentFirst)}
+                className={`flex items-center gap-2 px-5 py-2.5 border rounded-xl text-sm font-bold transition-all shadow-sm shrink-0 ml-auto ${sortUrgentFirst ? 'bg-red-500 border-red-500 text-white dark:bg-red-600 dark:border-red-600' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'}`}
               >
-                <option value="All">Category: All</option>
-                <option value="Design">Design</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Product">Product</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Strategy">Strategy</option>
-                <option value="General">General</option>
-              </select>
+                <span>{sortUrgentFirst ? 'Urgent Only' : 'Priority: All'}</span>
+                <span className="material-symbols-outlined text-sm">{sortUrgentFirst ? 'arrow_upward' : 'sort'}</span>
+              </button>
             </div>
-
-            {/* Priority Sort Button */}
-            <button 
-              onClick={() => setSortUrgentFirst(!sortUrgentFirst)}
-              className={`flex items-center gap-2 pl-4 pr-4 py-2 border rounded-xl text-sm font-medium transition-colors shrink-0 ${sortUrgentFirst ? 'bg-red-50 border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'}`}
-            >
-              <span>{sortUrgentFirst ? 'Urgent First' : 'Priority: All'}</span>
-              <span className="material-symbols-outlined text-sm">{sortUrgentFirst ? 'arrow_upward' : 'expand_more'}</span>
-            </button>
           </div>
 
           {/* Task List or Empty State */}

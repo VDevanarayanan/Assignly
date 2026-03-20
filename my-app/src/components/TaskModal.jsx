@@ -154,7 +154,7 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
               <select 
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-slate-100 appearance-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-slate-100"
               >
                 <option value="Design">Design</option>
                 <option value="Engineering">Engineering</option>
@@ -163,7 +163,6 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
                 <option value="Strategy">Strategy</option>
                 <option value="General">General</option>
               </select>
-              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
             </div>
           </div>
 
