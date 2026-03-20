@@ -94,6 +94,36 @@ graph TD
     API <-->|4. Firebase Admin SDK | DB
 ```
 
+### Application Flow (Use Case)
+```mermaid
+graph LR
+    %% Actors
+    Delegator((Delegator))
+    Assignee((Assignee))
+
+    %% Actions
+    CreateTask(Create & Assign Task)
+    Notif(UI Notification)
+    Update(Update Status)
+    Complete(Mark COMPLETED)
+    SoftDel(Soft Delete)
+    HardDel(Permanent Delete)
+
+    %% Flow
+    Delegator -->|1. Assigns| CreateTask
+    CreateTask -->|2. Triggers| Notif
+    Notif -.->|3. Alerts| Assignee
+    Assignee -->|4. Works| Update
+    Assignee -->|5. Finishes| Complete
+    Complete -.->|6. Alerts| Delegator
+    Assignee -->|7. Clears Inbox| SoftDel
+    Delegator -->|8. Clears History| HardDel
+
+    %% Styles
+    classDef actor fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    class Delegator,Assignee actor;
+```
+
 ### Core Technologies
 
 - **Frontend (Client):** React 18 powered by Vite. Styling is handled entirely via TailwindCSS for responsive, utility-first design. Routing is managed exclusively via React Router.
