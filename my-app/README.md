@@ -157,6 +157,8 @@ graph LR
 - **Antigravity:** Utilized as an agentic pair-programmer to assist with coding iterations, debugging real-time data flow issues, and structuring the Firebase endpoints.
 - **ChatGPT:** Used as a high-level advisor to help brainstorm and add any missing features in the architecture and system setup.
 
+One of the instance where i disagreed with the AI was when a delegated task was deleted it got deleted from both sides. However this will lead it issues of dishonest people deleting tasks assigned to them and the delegator not being able to track it. So i made the change to soft delete the task for the assignee and hard delete it for the delegator.
+
 Link to Live Demo
 https://worksync-self.vercel.app/
 
