@@ -23,7 +23,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/");
     try {
-      const res = await fetch("http://localhost:5001/dashboard", {
+      const res = await fetch("/api/dashboard", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -32,6 +32,8 @@ export default function Dashboard() {
         setUser(data.user);
         setTasks(data.tasks);
       } else {
+        console.error("Dashboard Fetch Failed:", data);
+        alert("Dashboard access failed: " + (data.error || data.message || "Unknown backend error"));
         navigate("/");
       }
     } catch (err) {
@@ -49,9 +51,12 @@ export default function Dashboard() {
   }, [navigate]);
 
   const updateTaskStatus = async (taskId, newStatus) => {
+    setActiveMenuId(null);
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)));
+    
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5001/dashboard/task/${taskId}`, {
+      const res = await fetch(`/api/dashboard/task/${taskId}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -60,13 +65,13 @@ export default function Dashboard() {
         body: JSON.stringify({ status: newStatus })
       });
       const data = await res.json();
-      if (data.success) {
-        fetchData(); // Refresh tasks
+      if (!data.success) {
+        fetchData(); // Revert on failure
       }
     } catch (err) {
       console.error(err);
+      fetchData(); // Revert on failure
     }
-    setActiveMenuId(null);
   };
 
   const deleteTask = async (taskId) => {
@@ -75,22 +80,25 @@ export default function Dashboard() {
       return;
     }
     
+    setActiveMenuId(null);
+    const backupTasks = [...tasks];
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5001/dashboard/task/${taskId}`, {
+      const res = await fetch(`/api/dashboard/task/${taskId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      if (data.success) {
-        fetchData(); // Refresh tasks
-      } else {
+      if (!data.success) {
         alert(data.message || "Failed to delete task");
+        setTasks(backupTasks); // Revert on failure
       }
     } catch (err) {
       console.error(err);
+      setTasks(backupTasks); // Revert on failure
     }
-    setActiveMenuId(null);
   };
 
   // Legacy inline creation function migrated directly into `<TaskModal />`.
@@ -309,7 +317,13 @@ export default function Dashboard() {
       <TaskModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={fetchData} 
+        onSuccess={(newTask) => {
+          if (newTask) {
+            setTasks(prev => [newTask, ...prev]);
+          } else {
+            fetchData();
+          }
+        }} 
       />
     </div>
   );

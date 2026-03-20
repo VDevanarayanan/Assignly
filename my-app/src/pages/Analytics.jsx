@@ -19,7 +19,7 @@ export default function Analytics() {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/");
     try {
-      const res = await fetch("http://localhost:5001/dashboard", {
+      const res = await fetch("/api/dashboard", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();

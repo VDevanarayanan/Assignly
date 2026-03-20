@@ -18,7 +18,7 @@ export default function Delegated() {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/");
     try {
-      const res = await fetch("http://localhost:5001/dashboard", {
+      const res = await fetch("/api/dashboard", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -52,7 +52,7 @@ export default function Delegated() {
   const updateTaskStatus = async (taskId, newStatus) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5001/dashboard/task/${taskId}`, {
+      const res = await fetch(`/api/dashboard/task/${taskId}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export default function Delegated() {
     
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5001/dashboard/task/${taskId}`, {
+      const res = await fetch(`/api/dashboard/task/${taskId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -97,13 +97,14 @@ export default function Delegated() {
   // Derive purely the tasks the user CREATED but assigned to someone ELSE
   const delegatedTasks = useMemo(() => {
     if (!user?.email) return [];
-    return tasks.filter(t => t.creator === user.email && t.assignee !== user.email);
+    return tasks.filter(t => t.createdBy === user.email && t.assignee !== user.email);
   }, [tasks, user]);
 
   const activeDelegations = delegatedTasks.filter(t => t.status !== "COMPLETED");
   const completedThisWeek = delegatedTasks.filter(t => {
-    if (t.status !== "COMPLETED" || !t.completedAt) return false;
-    const diffTime = new Date().getTime() - new Date(t.completedAt).getTime();
+    if (t.status !== "COMPLETED") return false;
+    const stamp = t.completedAt ? new Date(t.completedAt).getTime() : (t.updatedAt ? new Date(t.updatedAt).getTime() : parseInt(t.id));
+    const diffTime = new Date().getTime() - stamp;
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) <= 7;
   });
 
@@ -163,11 +164,8 @@ export default function Delegated() {
                       </div>
                       <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Assignee: <span className="text-primary">{highlightedTask.assignee}</span></p>
                     </div>
-                    <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center mt-2">
                       <p className="text-sm text-slate-500 italic max-w-sm truncate">{highlightedTask.description}</p>
-                      <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-9 px-4 bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-semibold">
-                        View Details
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -245,7 +243,13 @@ export default function Delegated() {
       <TaskModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={fetchData} 
+        onSuccess={(newTask) => {
+          if (newTask) {
+            setTasks(prev => [newTask, ...prev]);
+          } else {
+            fetchData();
+          }
+        }} 
         requireAssignee={true} // Strict requirement for "Delegated" page!
       />
     </div>

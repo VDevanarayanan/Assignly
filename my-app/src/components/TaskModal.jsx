@@ -34,7 +34,7 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
     
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://localhost:5001/dashboard/task", {
+      const res = await fetch("/api/dashboard/task", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export default function TaskModal({ isOpen, onClose, onSuccess, requireAssignee 
         setCategory("Design");
         setWarningMsg("");
         
-        onSuccess(); // Triggers the parent hook API refresh
+        onSuccess(data.task); // Passes the new task for optimistic updates
         onClose();   // Drops the modal wrapper
       } else {
         alert("Failed to create task: " + (data.message || "Unknown error"));

@@ -26,26 +26,26 @@ export default function Header({ title, user, tasks }) {
 
   const pendingTasks = useMemo(() => {
     if (!user?.email || !tasks) return [];
-    return tasks.filter(t => t.assignee === user.email && t.status === "PENDING" && t.creator !== user.email);
+    return tasks.filter(t => t.assignee === user.email && t.status === "PENDING" && t.createdBy !== user.email);
   }, [tasks, user]);
 
   const notifications = useMemo(() => {
     if (!user?.email || !tasks) return [];
     let notifs = [];
 
-    const incomingTasks = tasks.filter(t => t.assignee === user.email && t.creator !== user.email);
+    const incomingTasks = tasks.filter(t => t.assignee === user.email && t.status === "PENDING" && t.createdBy !== user.email);
     for (const t of incomingTasks) {
       notifs.push({
         id: `inc_${t.id}`,
         type: 'incoming',
-        user: t.creator,
+        user: t.createdBy,
         taskTitle: t.title,
         timestamp: parseInt(t.id),
         dateStr: new Date(parseInt(t.id)).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'})
       });
     }
 
-    const delegatedTasks = tasks.filter(t => t.creator === user.email && t.assignee !== user.email && t.status !== "PENDING");
+    const delegatedTasks = tasks.filter(t => t.createdBy === user.email && t.assignee !== user.email && t.unreadStatusUpdate);
     for (const t of delegatedTasks) {
       const stamp = t.updatedAt ? new Date(t.updatedAt).getTime() : parseInt(t.id);
       let action = "updated"; let type = "comment";
@@ -66,7 +66,7 @@ export default function Header({ title, user, tasks }) {
       });
     }
 
-    const newlyJoinedTasks = tasks.filter(t => t.creator === user.email && t.assignee !== user.email && t.joinedAt);
+    const newlyJoinedTasks = tasks.filter(t => t.createdBy === user.email && t.assignee !== user.email && t.joinedAt);
     for (const t of newlyJoinedTasks) {
       const stamp = new Date(t.joinedAt).getTime();
       notifs.push({

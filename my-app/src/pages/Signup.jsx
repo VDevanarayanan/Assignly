@@ -13,7 +13,7 @@ export default function Signup() {
   const [googleUser, setGoogleUser] = useState(null);
 
   const finishSignup = async (token) => {
-    const res = await fetch("http://localhost:5001/auth/login", {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
@@ -23,7 +23,7 @@ export default function Signup() {
       localStorage.setItem("token", token);
       navigate("/dashboard");
     } else {
-      alert("Signup failed");
+      alert("Signup failed: " + (data.message || data.error || "Unknown error"));
     }
   };
 

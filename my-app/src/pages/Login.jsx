@@ -14,7 +14,7 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const token = await result.user.getIdToken();
 
-      const res = await fetch("http://localhost:5001/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
@@ -27,7 +27,7 @@ export default function Login() {
         localStorage.setItem("token", token);
         navigate("/dashboard");
       } else {
-        alert("Login failed");
+        alert("Login failed: " + (data.message || data.error || "Unknown error"));
       }
     } catch (err) {
       console.error(err);
@@ -40,7 +40,7 @@ export default function Login() {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const token = await result.user.getIdToken();
 
-      const res = await fetch("http://localhost:5001/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
@@ -53,7 +53,7 @@ export default function Login() {
         localStorage.setItem("token", token);
         navigate("/dashboard");
       } else {
-        alert("Login failed");
+        alert("Login failed: " + (data.message || data.error || "Unknown error"));
       }
     } catch (err) {
       console.error(err);

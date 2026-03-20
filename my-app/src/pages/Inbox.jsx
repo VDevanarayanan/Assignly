@@ -14,7 +14,7 @@ export default function Inbox() {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/");
     try {
-      const res = await fetch("http://localhost:5001/dashboard", {
+      const res = await fetch("/api/dashboard", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -46,7 +46,7 @@ export default function Inbox() {
     
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5001/dashboard/task/${taskId}`, {
+      const res = await fetch(`/api/dashboard/task/${taskId}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export default function Inbox() {
     
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5001/dashboard/task/${taskId}`, {
+      const res = await fetch(`/api/dashboard/task/${taskId}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -92,14 +92,45 @@ export default function Inbox() {
     setIsProcessing(false);
   };
 
+  const dismissStatusNotification = async (taskId) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`/api/dashboard/task/${taskId}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ clearUnreadStatus: true })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchData();
+      } else {
+        alert("Failed to dismiss notification.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setIsProcessing(false);
+  };
+
   const pendingTasks = useMemo(() => {
     if (!user?.email) return [];
-    return tasks.filter(t => t.assignee === user.email && t.status === "PENDING" && t.creator !== user.email);
+    return tasks.filter(t => t.assignee === user.email && t.status === "PENDING" && t.createdBy !== user.email);
   }, [tasks, user]);
 
   const joinedNotifications = useMemo(() => {
     if (!user?.email) return [];
-    return tasks.filter(t => t.creator === user.email && t.assignee !== user.email && t.joinedAt);
+    return tasks.filter(t => t.createdBy === user.email && t.assignee !== user.email && t.joinedAt);
+  }, [tasks, user]);
+
+  const statusNotifications = useMemo(() => {
+    if (!user?.email) return [];
+    return tasks.filter(t => t.createdBy === user.email && t.assignee !== user.email && t.unreadStatusUpdate);
   }, [tasks, user]);
 
   return (
@@ -120,7 +151,7 @@ export default function Inbox() {
 
           {/* Inbox Payload Grid */}
           <div className="flex flex-col gap-4">
-            {pendingTasks.length === 0 && joinedNotifications.length === 0 ? (
+            {pendingTasks.length === 0 && joinedNotifications.length === 0 && statusNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="size-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300 mb-4 shadow-inner">
                   <span className="material-symbols-outlined text-3xl">check_circle</span>
@@ -131,8 +162,8 @@ export default function Inbox() {
             ) : (
               <>
                 {joinedNotifications.map((task, i) => (
-                  <div key={`join-${task.id}`} style={{ animationDelay: `${i * 100}ms` }} className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-in relative grid grid-cols-1 gap-6 items-center group">
-                    <div className="flex flex-col gap-3">
+                  <div key={`join-${task.id}`} style={{ animationDelay: `${i * 100}ms` }} className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-in relative flex flex-col sm:flex-row justify-between sm:items-center gap-6 group">
+                    <div className="flex flex-col gap-3 flex-1">
                       <div className="flex items-center gap-3 mb-1">
                         <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
                           Account Created
@@ -143,6 +174,36 @@ export default function Inbox() {
                         <span className="font-bold">{task.assignee}</span> has successfully signed up for Assignly. They have automatically received your delegated task.
                       </p>
                     </div>
+                    <button 
+                      onClick={() => dismissNotification(task.id)}
+                      disabled={isProcessing}
+                      className="shrink-0 bg-white dark:bg-slate-900 px-5 py-2.5 rounded-xl font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 shadow-sm transition-colors disabled:opacity-50"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                ))}
+
+                {statusNotifications.map((task, i) => (
+                  <div key={`status-${task.id}`} style={{ animationDelay: `${(i + joinedNotifications.length) * 100}ms` }} className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-in relative flex flex-col sm:flex-row justify-between sm:items-center gap-6 group">
+                    <div className="flex flex-col gap-3 flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                          Status Updated
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100">{task.title}</h3>
+                      <p className="text-amber-700 dark:text-amber-300 text-sm leading-relaxed max-w-2xl">
+                        <span className="font-bold">{task.assignee}</span> updated the task status to <span className="font-bold uppercase">{task.status}</span>.
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => dismissStatusNotification(task.id)}
+                      disabled={isProcessing}
+                      className="shrink-0 bg-white dark:bg-slate-900 px-5 py-2.5 rounded-xl font-bold text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40 shadow-sm transition-colors disabled:opacity-50"
+                    >
+                      Dismiss
+                    </button>
                   </div>
                 ))}
 
@@ -168,10 +229,10 @@ export default function Inbox() {
                       
                       <div className="flex items-center gap-3 mt-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                         <div className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700">
-                          <span className="text-xs font-bold text-slate-500">{task.creator?.substring(0, 2).toUpperCase() || "XX"}</span>
+                          <span className="text-xs font-bold text-slate-500">{task.createdBy?.substring(0, 2).toUpperCase() || "XX"}</span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm">
-                          Delegated by <span className="font-semibold text-slate-700 dark:text-slate-300">{task.creator}</span>
+                          Delegated by <span className="font-semibold text-slate-700 dark:text-slate-300">{task.createdBy}</span>
                         </p>
                       </div>
                     </div>
