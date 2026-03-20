@@ -154,7 +154,7 @@ graph LR
 ---
 ## AI Tools
 - **Google Stitch:** Leveraged to visually design and instantly prototype the sleek React UI components.
-- **Antigravity:** Utilized as an agentic pair-programmer to assist with coding iterations, debugging real-time data flow issues, and structuring the Firebase endpoints.
+- **Antigravity:** Utilized as an agentic pair-programmer to assist with coding iterations, debugging real-time data flow issues, and structuring the Firebase endpoints and to make diagrams in README.
 - **ChatGPT:** Used as a high-level advisor to help brainstorm and add any missing features in the architecture and system setup.
 
 Link to Live Demo
