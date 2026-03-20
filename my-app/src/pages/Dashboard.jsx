@@ -193,14 +193,13 @@ export default function Dashboard() {
                 <select 
                   value={filterStatus} 
                   onChange={e => setFilterStatus(e.target.value)}
-                  className="flex items-center gap-2 pl-4 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors appearance-none outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm"
+                  className="flex items-center gap-2 pl-4 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm"
                 >
                   <option value="All">Status: All</option>
                   <option value="ACCEPTED">Accepted</option>
                   <option value="IN PROGRESS">In Progress</option>
                   <option value="COMPLETED">Completed</option>
                 </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
               </div>
 
               {/* Category Dropdown */}
@@ -208,7 +207,7 @@ export default function Dashboard() {
                 <select 
                   value={filterCategory} 
                   onChange={e => setFilterCategory(e.target.value)}
-                  className="flex items-center gap-2 pl-4 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors appearance-none outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm"
+                  className="flex items-center gap-2 pl-4 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-sm"
                 >
                   <option value="All">Category: All</option>
                   <option value="Design">Design</option>
@@ -218,7 +217,6 @@ export default function Dashboard() {
                   <option value="Strategy">Strategy</option>
                   <option value="General">General</option>
                 </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
               </div>
 
               {/* Priority Sort Button */}

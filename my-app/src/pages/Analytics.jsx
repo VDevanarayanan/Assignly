@@ -114,10 +114,11 @@ export default function Analytics() {
     // Process all completed tasks exactly into their bins
     myTasks.forEach(t => {
       if (t.status === "COMPLETED") {
-        // Safely fallback to update time if missing completion timestamp (avoiding creation sequence ID)
-        let originTimestamp = new Date();
+        // Safely fallback to update time if missing completion timestamp
+        let originTimestamp;
         if (t.completedAt) originTimestamp = new Date(t.completedAt);
         else if (t.updatedAt) originTimestamp = new Date(t.updatedAt);
+        else originTimestamp = new Date(parseInt(t.id)); // Ultimate fallback to creation ID for older tasks
         
         const compDateStr = getLocalDateString(originTimestamp);
         
