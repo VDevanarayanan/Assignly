@@ -5,7 +5,7 @@ import { signOut } from "firebase/auth";
 import TaskModal from "../components/TaskModal";
 import Header from "../components/Header";
 import Tabs from "../components/Tabs";
-
+import { isCompletedThisWeek } from "../utils/taskUtils";
 export default function Delegated() {
   const navigate = useNavigate();
 
@@ -101,12 +101,7 @@ export default function Delegated() {
   }, [tasks, user]);
 
   const activeDelegations = delegatedTasks.filter(t => t.status !== "COMPLETED");
-  const completedThisWeek = delegatedTasks.filter(t => {
-    if (t.status !== "COMPLETED") return false;
-    const stamp = t.completedAt ? new Date(t.completedAt).getTime() : (t.updatedAt ? new Date(t.updatedAt).getTime() : parseInt(t.id));
-    const diffTime = new Date().getTime() - stamp;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) <= 7;
-  });
+  const completedThisWeek = delegatedTasks.filter(t => isCompletedThisWeek(t));
 
   const highlightedTask = activeDelegations.length > 0 ? activeDelegations[0] : null;
   const listTasks = highlightedTask ? delegatedTasks.filter(t => t.id !== highlightedTask.id) : delegatedTasks;
